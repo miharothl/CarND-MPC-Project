@@ -7,36 +7,47 @@ Self-Driving Car Engineer Nanodegree Program
 
 The state of the car is represented in world coordinate system by:
 
- * x coordinate
- * y coordinate
- * psi - angle
+ * x and y coordinate
+ * psi - orientation angle
  * v - velocity
+ * etc - cross track error
+ * epsi - orientation angle error
  
- Actuators were used:
+Two actuators were used:
   * delta - steering wheel 
   * a - single actuator to simulate throttle and break pedals
 
-Kinematic model was used represented by the following equations:
+Kinematic model represented by the following update equations was used:
 
 ![kinematic model](./images/kinematic_model.png)
 
 Lf measures the distance between the front of the vehicle and its center of gravity. The larger the vehicle, the slower the turn rate.
 
+dt represents timestamp.
+
 ## Timestamp Length and Elapsed Duration
 
+Various N and dt values were used. Finally 10 and 0.1 were used as suggested by the 
+ Udacity instructors. Combination of 10 and 0.1 means that the MPC predicts state of the 
+ vehicle for 1 second ahead. Higher N values resulted in delays
+ produced by the solver. The vehicle started to oscillate. Same was observed for looking only couple
+ of steps away.
+  
 ## Polynomial Fitting and MPC Preprocessing
 
 Simulator returns the way points in world coordinate system. Way points were transposed and 
-rotated into vehicle coordinate system `main.ccp: lines 97-104`.
+rotated into vehicle coordinate system `main.ccp: lines 97-104`. As a result of transformation the process
+is simplified as orientation of the vehicle is 0 and the polynomial goes through the origin of the
+vehicle coordinate system.
 
 Once transformed a 3rd order polynomial was fitted to the waypoints.
 
-3rd order polynomial was fitted to the way points returned by the simulator. The way points wer
-
 ## Model Predictive Control with Latency
 
+Latency is used to simulate the delay between the actuator command to take effect on the
+vehicle. The actuator values computed by the solver for a next timestamp will be in the past.
 
-
+In order to compensate for that constraints were set to compute for two timestamps ahead `MPC.cpp lines 136-139`.
 
 ---
 
