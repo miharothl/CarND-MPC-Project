@@ -3,6 +3,43 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## The Model
+
+The state of the car is represented in world coordinate system by:
+
+ * x coordinate
+ * y coordinate
+ * psi - angle
+ * v - velocity
+ 
+ Actuators were used:
+  * delta - steering wheel 
+  * a - single actuator to simulate throttle and break pedals
+
+Kinematic model was used represented by the following equations:
+
+![kinematic model](./images/kinematic_model.png)
+
+Lf measures the distance between the front of the vehicle and its center of gravity. The larger the vehicle, the slower the turn rate.
+
+## Timestamp Length and Elapsed Duration
+
+## Polynomial Fitting and MPC Preprocessing
+
+Simulator returns the way points in world coordinate system. Way points were transposed and 
+rotated into vehicle coordinate system `main.ccp: lines 97-104`.
+
+Once transformed a 3rd order polynomial was fitted to the waypoints.
+
+3rd order polynomial was fitted to the way points returned by the simulator. The way points wer
+
+## Model Predictive Control with Latency
+
+
+
+
+---
+
 ## Dependencies
 
 * cmake >= 3.5
