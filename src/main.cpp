@@ -66,10 +66,107 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
 }
 
 int main() {
+
+
+
+  double array[12];
+  for(int i = 0; i < 12; ++i) array[i] = i;
+  cout << Eigen::Map<Eigen::VectorXd, 0, Eigen::InnerStride<2> >
+          (array, 6) // the inner stride has already been passed as template parameter
+       << endl;
+
+  cout << Eigen::Map<Eigen::VectorXd>
+          (array, 12) // the inner stride has already been passed as template parameter
+       << endl;
+
+
+
+
   uWS::Hub h;
 
   // MPC is initialized here!
   MPC mpc;
+//  int iters = 5;
+//
+//
+//  std::vector<double>  a;
+//  a.push_back(-100.);
+//  a.push_back(101.);
+//
+//
+//  Eigen::VectorXd ptsx(2);
+//  Eigen::VectorXd ptsy(2);
+//
+//
+//  std::cout << a[0] << std::endl;
+//
+//  std::cout << a.data();
+////  ptsx << -100, 100;
+//  ptsx << a[0], 100;
+//  ptsy << -1, -1;
+//
+//  // TODO: fit a polynomial to the above x and y coordinates
+//  auto coeffs = polyfit(ptsx, ptsy, 1) ;
+//
+//  // NOTE: free feel to play around with these
+//  double x = -1;
+//  double y = 10;
+//  double psi = 0;
+//  double v = 10;
+//  // TODO: calculate the cross track error
+//  double cte =  polyeval(coeffs, x) - y;
+//  // TODO: calculate the orientation error
+//  // Due to the sign starting at 0, the orientation error is -f'(x).
+//  // derivative of coeffs[0] + coeffs[1] * x -> coeffs[1]
+//  double epsi = psi - atan(coeffs[1]);
+//
+//  Eigen::VectorXd state(6);
+//  state << x, y, psi, v, cte, epsi;
+//
+//  std::vector<double> x_vals = {state[0]};
+//  std::vector<double> y_vals = {state[1]};
+//  std::vector<double> psi_vals = {state[2]};
+//  std::vector<double> v_vals = {state[3]};
+//  std::vector<double> cte_vals = {state[4]};
+//  std::vector<double> epsi_vals = {state[5]};
+//  std::vector<double> delta_vals = {};
+//  std::vector<double> a_vals = {};
+//
+//  for (size_t i = 0; i < iters; i++) {
+//    std::cout << "Iteration " << i << std::endl;
+//
+//    auto vars = mpc.Solve(state, coeffs);
+//
+//    x_vals.push_back(vars[0]);
+//    y_vals.push_back(vars[1]);
+//    psi_vals.push_back(vars[2]);
+//    v_vals.push_back(vars[3]);
+//    cte_vals.push_back(vars[4]);
+//    epsi_vals.push_back(vars[5]);
+//
+//    delta_vals.push_back(vars[6]);
+//    a_vals.push_back(vars[7]);
+//
+//    state << vars[0], vars[1], vars[2], vars[3], vars[4], vars[5];
+//    std::cout << "x = " << vars[0] << std::endl;
+//    std::cout << "y = " << vars[1] << std::endl;
+//    std::cout << "psi = " << vars[2] << std::endl;
+//    std::cout << "v = " << vars[3] << std::endl;
+//    std::cout << "cte = " << vars[4] << std::endl;
+//    std::cout << "epsi = " << vars[5] << std::endl;
+//    std::cout << "delta = " << vars[6] << std::endl;
+//    std::cout << "a = " << vars[7] << std::endl;
+//    std::cout << std::endl;
+//  }
+
+
+
+
+
+
+
+
+
 
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
@@ -82,6 +179,9 @@ int main() {
       string s = hasData(sdata);
       if (s != "") {
         auto j = json::parse(s);
+
+
+
         string event = j[0].get<string>();
         if (event == "telemetry") {
           // j[1] is the data JSON object
@@ -92,25 +192,112 @@ int main() {
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
 
+//          std::cout << ptsx[0] << std::endl;
+//          std::cout << px << std::endl;
+//          std::cout << py << std::endl;
+//          std::cout << psi << std::endl;
+//          std::cout << v << std::endl;
+
+          for (int i = 0; i<ptsx.size(); i++)
+          {
+            double shift_x = ptsx[i] - px;
+            double shift_y = ptsy[i] - py;
+
+            ptsx[i] = (shift_x * cos(0-psi) - shift_y*sin(0-psi));
+            ptsy[i] = (shift_x * sin(0-psi) + shift_y*cos(0-psi));
+          }
+
+          auto vx = Eigen::Map<Eigen::VectorXd>(ptsx.data(), ptsx.size());
+          auto vy = Eigen::Map<Eigen::VectorXd>(ptsy.data(), ptsy.size());
+
+          int iters = 1;
+//          Eigen::VectorXd ptsx(2);
+//          Eigen::VectorXd ptsy(2);
+//          ptsx << -100, 100;
+//          ptsy << -1, -1;
+
+//           TODO: fit a polynomial to the above x and y coordinates
+
+          auto coeffs = polyfit(vx, vy, 3) ;
+
+          std::cout << coeffs << std::endl;
+
+          // NOTE: free feel to play around with these
+//          double x = -1;
+//          double y = 10;
+//          double psi = 0;
+//          double v = 10;
+          // TODO: calculate the cross track error
+          double cte =  polyeval(coeffs, 0);
+          // TODO: calculate the orientation error
+          // Due to the sign starting at 0, the orientation error is -f'(x).
+          // derivative of coeffs[0] + coeffs[1] * x -> coeffs[1]
+          double epsi = - atan(coeffs[1]);
+
+          Eigen::VectorXd state(6);
+          state << 0, 0, 0, v, cte, epsi;
+
+          std::vector<double> x_vals = {state[0]};
+          std::vector<double> y_vals = {state[1]};
+          std::vector<double> psi_vals = {state[2]};
+          std::vector<double> v_vals = {state[3]};
+          std::vector<double> cte_vals = {state[4]};
+          std::vector<double> epsi_vals = {state[5]};
+          std::vector<double> delta_vals = {};
+          std::vector<double> a_vals = {};
+
+//          for (size_t i = 0; i < iters; i++) {
+//            std::cout << "Iteration " << i << std::endl;
+
+            auto vars = mpc.Solve(state, coeffs);
+
+            x_vals.push_back(vars[0]);
+            y_vals.push_back(vars[1]);
+            psi_vals.push_back(vars[2]);
+            v_vals.push_back(vars[3]);
+            cte_vals.push_back(vars[4]);
+            epsi_vals.push_back(vars[5]);
+
+            delta_vals.push_back(vars[6]);
+            a_vals.push_back(vars[7]);
+
+            state << vars[0], vars[1], vars[2], vars[3], vars[4], vars[5];
+            std::cout << "x = " << vars[0] << std::endl;
+            std::cout << "y = " << vars[1] << std::endl;
+            std::cout << "psi = " << vars[2] << std::endl;
+            std::cout << "v = " << vars[3] << std::endl;
+            std::cout << "cte = " << vars[4] << std::endl;
+            std::cout << "epsi = " << vars[5] << std::endl;
+            std::cout << "delta = " << vars[6] << std::endl;
+            std::cout << "a = " << vars[7] << std::endl;
+            std::cout << std::endl;
+//          }
+
+
           /*
           * TODO: Calculate steering angle and throttle using MPC.
           *
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
+          double steer_value = -delta_vals[0];
+          double throttle_value = 0.3;
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = steer_value;
+          msgJson["steering_angle"] = steer_value / (deg2rad(25) * 2.67);
           msgJson["throttle"] = throttle_value;
 
           //Display the MPC predicted trajectory 
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
+          for (int i =8; i<8+98;  i=i+2)
+          {
+            mpc_x_vals.push_back(vars[i]);
+            mpc_y_vals.push_back(vars[i+1]);
+          }
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
@@ -121,8 +308,21 @@ int main() {
           vector<double> next_x_vals;
           vector<double> next_y_vals;
 
+
+
+
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
+          double poly_inc = 2.5;
+          int num_points = 25;
+          for (int i = 1; i<num_points; i++)
+          {
+            next_x_vals.push_back(poly_inc * i) ;
+            next_y_vals.push_back(polyeval(coeffs, poly_inc * i)) ;
+//            next_y_vals.push_back(0.) ;
+
+
+          }
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
