@@ -6,8 +6,8 @@ Self-Driving Car Engineer Nanodegree Program
 ## The Model
 
 The state of the car is represented in world coordinate system by x and y coordinate,
-by orientation angle (psi), velocity (v), cross track error (etc)
-and  orientation angle error (epsi).
+orientation angle (psi), velocity (v), cross track error (etc)
+and by orientation angle error (epsi).
  
 Two actuators were used one for steering wheel (delta) and one single actuator for both throttle and break
  pedals (a).
