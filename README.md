@@ -5,39 +5,35 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## The Model
 
-The state of the car is represented in world coordinate system by:
-
- * x and y coordinate
- * psi - orientation angle
- * v - velocity
- * etc - cross track error
- * epsi - orientation angle error
+The state of the car is represented in world coordinate system by x and y coordinate,
+by orientation angle (psi), velocity (v), cross track error (etc)
+and  orientation angle error (epsi).
  
-Two actuators were used:
-  * delta - steering wheel 
-  * a - single actuator to simulate throttle and break pedals
+Two actuators were used one for steering wheel (delta) and one single actuator for both throttle and break
+ pedals (a).
 
 Kinematic model represented by the following update equations was used:
 
 ![kinematic model](./images/kinematic_model.png)
 
-Lf measures the distance between the front of the vehicle and its center of gravity. The larger the vehicle, the slower the turn rate.
-
-dt represents timestamp.
+where Lf measures the distance between the front of the vehicle and its center of gravity 
+(the larger the vehicle, the slower the turn rate), 
+and where dt represents timestamp.
 
 ## Timestamp Length and Elapsed Duration
 
-Various N and dt values were used. Finally 10 and 0.1 were used as suggested by the 
- Udacity instructors. Combination of 10 and 0.1 means that the MPC predicts state of the 
+Various N and dt values were used. Finally 10 and 0.1 were chosen as suggested by the 
+ Udacity instructors. The combination of 10 and 0.1 means that the MPC predicts state of the 
  vehicle for 1 second ahead. Higher N values resulted in delays
- produced by the solver. The vehicle started to oscillate. Same was observed for looking only couple
- of steps away.
+ produced by the solver and the vehicle started to oscillate. Same was observed for looking only couple
+ of steps away (smaller N).
   
 ## Polynomial Fitting and MPC Preprocessing
 
-Simulator returns the way points in world coordinate system. Way points were transposed and 
-rotated into vehicle coordinate system `main.ccp: lines 97-104`. As a result of transformation the process
-is simplified as orientation of the vehicle is 0 and the polynomial goes through the origin of the
+The simulator returns the waypoints in the world coordinate system. The waypoints were transposed and 
+rotated into the vehicle coordinate system `main.ccp: lines 97-104`. As a result of transformation
+the process of fitting a polynomial is 
+simplified as orientation of the vehicle is 0 and the polynomial goes through the origin of the
 vehicle coordinate system.
 
 Once transformed a 3rd order polynomial was fitted to the waypoints.
@@ -45,9 +41,11 @@ Once transformed a 3rd order polynomial was fitted to the waypoints.
 ## Model Predictive Control with Latency
 
 Latency is used to simulate the delay between the actuator command to take effect on the
-vehicle. The actuator values computed by the solver for a next timestamp will be in the past.
+vehicle. The actuator values computed by the solver for a next timestamp would be in the past.
 
 In order to compensate for that constraints were set to compute for two timestamps ahead `MPC.cpp lines 136-139`.
+
+The vehicle can complete the course with the target speed 70 Mph.
 
 ---
 
