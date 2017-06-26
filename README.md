@@ -31,19 +31,19 @@ Various N and dt values were used. Finally 10 and 0.1 were chosen as suggested b
 ## Polynomial Fitting and MPC Preprocessing
 
 The simulator returns the waypoints in the world coordinate system. The waypoints were transposed and 
-rotated into the vehicle coordinate system `main.ccp: lines 97-104`. As a result of transformation
+rotated into the vehicle coordinate system (`main.cpp: lines 97-104`). As a result of transformation
 the process of fitting a polynomial is 
 simplified as orientation of the vehicle is 0 and the polynomial goes through the origin of the
 vehicle coordinate system.
 
-Once transformed a 3rd order polynomial was fitted to the waypoints.
+Once transformed a 3rd order polynomial was fit to the waypoints.
 
 ## Model Predictive Control with Latency
 
 Latency is used to simulate the delay between the actuator command to take effect on the
 vehicle. The actuator values computed by the solver for a next timestamp would be in the past.
 
-In order to compensate for that constraints were set to compute for two timestamps ahead `MPC.cpp lines 136-139`.
+In order to compensate for that constraints were set to compute for two timestamps ahead (`MPC.cpp lines 136-139`).
 
 The vehicle can complete the course with the target speed 70 Mph.
 
